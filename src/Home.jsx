@@ -45,7 +45,7 @@ const Home = () => {
   const [leadOpen, setLeadOpen] = useState(false);
   const [treatments, setTreatments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [expandedDoctor, setExpandedDoctor] = useState({ anand: false, swati: false });
+  const [expandedDoctor, setExpandedDoctor] = useState({ astitva: false, rahul: false });
 
   useEffect(() => {
     const fetchTreatments = async () => {
@@ -85,41 +85,41 @@ const Home = () => {
           <div className="core-doctors-grid">
             <article className="core-doctor-card reveal-on-scroll">
               <div className="core-doctor-photo">
-                <img src="/Images/Maledocter.webp" alt="Dr Anand" loading="lazy" />
+                <img src="/Images/DrAstitvaAgarwal.webp" alt="Dr Astitva Agarwal" loading="lazy" />
               </div>
               <div className="core-doctor-body">
-                <h3>Dr. Anand Chaudhary</h3>
+                <h3>Dr. Astitva Agarwal</h3>
                 <p className="doctor-qualification">
-                  Founder, Crown Dental | Dental Surgeon | Implant & Smile Design Specialist
+                  BDS, MDS | Orthodontist | Braces & Aligner Specialist
                 </p>
                 <p style={{ marginBottom: "16px", lineHeight: "1.6" }}>
-                  Renowned for precision-driven dentistry and aesthetic excellence, Dr. Anand Chaudhary leads Crown Dental with a vision of delivering advanced, patient-centric care.
-                  {!expandedDoctor.anand && (
+                  Dr. Astitva Agarwal is a highly skilled orthodontist with 7+ years of experience delivering precise smile corrections through modern braces and aligner therapies.
+                  {!expandedDoctor.astitva && (
                     <>
                       {" "}
                       <button 
                         className="doc-btn-read-more-inline" 
-                        onClick={() => setExpandedDoctor(prev => ({ ...prev, anand: !prev.anand }))}
+                        onClick={() => setExpandedDoctor(prev => ({ ...prev, astitva: !prev.astitva }))}
                       >
                         Read More →
                       </button>
                     </>
                   )}
                 </p>
-                {expandedDoctor.anand && (
+                {expandedDoctor.astitva && (
                   <>
                     <p style={{ marginBottom: "16px", lineHeight: "1.6" }}>
-                      Holding a BDS and MBA in Hospital Administration, he combines clinical expertise with strategic leadership to create a modern, technology-driven dental practice.
+                      Holding a BDS and MDS in Orthodontics, he specialises in diagnosing and treating complex bite and alignment issues with a focus on long-term functional and aesthetic results.
                     </p>
                     <p style={{ marginBottom: "16px", lineHeight: "1.6" }}>
-                      With specialized expertise in implantology, smile design, and laser dentistry, he focuses on minimally invasive, result-oriented treatments tailored to each patient. His approach blends science with artistry—enhancing not just oral health, but overall confidence.
+                      His patient-first approach and expertise with both traditional braces and clear aligners make him a preferred choice for patients of all ages seeking a confident, well-aligned smile.
                     </p>
                     <p style={{ fontWeight: "600", marginBottom: "16px", color: "#6f6048" }}>
-                      Signature Expertise: Advanced Implants | Smile Makeovers | Laser Dentistry | Full Mouth Rehabilitation
+                      Signature Expertise: Braces | Aligners | Smile Correction | Jaw Alignment
                     </p>
                     <button 
                       className="doc-btn-read-more-inline" 
-                      onClick={() => setExpandedDoctor(prev => ({ ...prev, anand: !prev.anand }))}
+                      onClick={() => setExpandedDoctor(prev => ({ ...prev, astitva: !prev.astitva }))}
                     >
                       Read Less ↑
                     </button>
@@ -133,41 +133,41 @@ const Home = () => {
 
             <article className="core-doctor-card reveal-on-scroll">
               <div className="core-doctor-photo">
-                <img src="/Images/Femaledocter.webp" alt="Dr Swati" loading="lazy" />
+                <img src="/Images/DrRahulSeth.JPG" alt="Dr Rahul Seth" loading="lazy" />
               </div>
               <div className="core-doctor-body">
-                <h3>Dr. Swati Chaudhary</h3>
+                <h3>Dr. Rahul Seth</h3>
                 <p className="doctor-qualification">
-                  Executive Director, AngelLife Cosmetology & Wellness | Aesthetic Physician & Dental Surgeon
+                  Oral and Maxillofacial Surgeon | Jaw & Facial Surgery Specialist
                 </p>
                 <p style={{ marginBottom: "16px", lineHeight: "1.6" }}>
-                  Known for her refined aesthetic sense and clinical precision, Dr. Swati Chaudhary brings a sophisticated approach to modern cosmetology and wellness.
-                  {!expandedDoctor.swati && (
+                  Dr. Rahul Seth is an experienced oral and maxillofacial surgeon with 11+ years of expertise in complex jaw surgeries, facial trauma management, and reconstructive procedures.
+                  {!expandedDoctor.rahul && (
                     <>
                       {" "}
                       <button 
                         className="doc-btn-read-more-inline" 
-                        onClick={() => setExpandedDoctor(prev => ({ ...prev, swati: !prev.swati }))}
+                        onClick={() => setExpandedDoctor(prev => ({ ...prev, rahul: !prev.rahul }))}
                       >
                         Read More →
                       </button>
                     </>
                   )}
                 </p>
-                {expandedDoctor.swati && (
+                {expandedDoctor.rahul && (
                   <>
                     <p style={{ marginBottom: "16px", lineHeight: "1.6" }}>
-                      Holding a BDS, MBA in Hospital Administration, and MSc in Cosmetology, she seamlessly blends medical expertise with strategic leadership.
+                      Specialising in both surgical and non-surgical management of facial conditions, Dr. Seth brings precision and care to every procedure — from wisdom tooth extractions to full facial reconstructive surgery.
                     </p>
                     <p style={{ marginBottom: "16px", lineHeight: "1.6" }}>
-                      With advanced proficiency in skin rejuvenation, anti-aging therapies, laser treatments, and facial aesthetics, she delivers personalized, result-oriented solutions focused on natural enhancement. Her philosophy combines science with artistry—enhancing beauty while maintaining individuality.
+                      His calm, reassuring approach and advanced surgical skills ensure patients feel safe and well-cared-for throughout their treatment journey.
                     </p>
                     <p style={{ fontWeight: "600", marginBottom: "16px", color: "#6f6048" }}>
-                      Signature Expertise: Skin Rejuvenation | Anti-Aging Treatments | Laser Aesthetics | Facial Contouring
+                      Signature Expertise: Jaw Surgery | Facial Trauma | Wisdom Tooth Removal | Reconstructive Surgery
                     </p>
                     <button 
                       className="doc-btn-read-more-inline" 
-                      onClick={() => setExpandedDoctor(prev => ({ ...prev, swati: !prev.swati }))}
+                      onClick={() => setExpandedDoctor(prev => ({ ...prev, rahul: !prev.rahul }))}
                     >
                       Read Less ↑
                     </button>
@@ -871,5 +871,6 @@ const Home = () => {
 
 
 export default Home;
+
 
 
