@@ -18,7 +18,7 @@ export default function Doctors() {
     {
       name: "Dr. Rahul Seth",
       title: "Oral and Maxillofacial Surgeon",
-      img: "/Images/DrRahulSeth.JPG",
+      img: "/Images/DrRahulSeth.webp",
       badges: ["Jaw Surgery", "Facial Trauma", "Wisdom Tooth Removal", "Reconstructive Surgery"],
       exp: 11,
       treatments: 3200,
@@ -54,10 +54,19 @@ export default function Doctors() {
   ];
 
   useEffect(() => {
-    const fadeEls = document.querySelectorAll(".fade");
-    fadeEls.forEach((el, i) =>
-      setTimeout(() => el.classList.add("visible"), i * 150)
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry, i) => {
+          if (entry.isIntersecting) {
+            setTimeout(() => entry.target.classList.add("visible"), i * 150);
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1 }
     );
+    document.querySelectorAll(".fade").forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
   }, []);
 
   return (
@@ -99,9 +108,9 @@ export default function Doctors() {
           padding: "0 24px 80px",
         }}
       >
-        {doctors.map((doc, i) => (
+        {doctors.map((doc) => (
           <div
-            key={i}
+            key={doc.name}
             className="fade"
             style={{
               background: "#ffffff",
@@ -182,9 +191,9 @@ export default function Doctors() {
                   marginBottom: 20,
                 }}
               >
-                {doc.badges.map((b, bi) => (
+                {doc.badges.map((b) => (
                   <span
-                    key={bi}
+                    key={b}
                     style={{
                       padding: "5px 11px",
                       background: "#f2ebe0",
