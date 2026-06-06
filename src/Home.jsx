@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import LeadForm from "./LeadForm";
 import Hero from "./Hero";
-import "./Home.css"; 
+import "./Home.css";
 import {
   ShieldCheck,
   Users,
@@ -14,23 +14,28 @@ import {
   Microscope,
   Droplets,
   Frame,
-  Sparkles
+  Sparkles,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import API from "./api";
 
 const Home = () => {
+  // ✅ All useState hooks declared first — before any useEffect
+  const [leadOpen, setLeadOpen] = useState(false);
+  const [treatments, setTreatments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [expandedDoctor, setExpandedDoctor] = useState({ anand: false, swati: false });
+
+  // Scroll reveal effect
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            // Use stagger delay from data attribute if present
             const delay = entry.target.dataset.revealDelay || 0;
             setTimeout(() => {
               entry.target.classList.add("revealed");
             }, Number(delay));
-            // Stop observing after reveal to save resources
             observer.unobserve(entry.target);
           }
         });
@@ -41,19 +46,13 @@ const Home = () => {
     document.querySelectorAll(".reveal-on-scroll").forEach((el) => observer.observe(el));
     return () => observer.disconnect();
   }, []);
-  
-  const [leadOpen, setLeadOpen] = useState(false);
-  const [treatments, setTreatments] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [expandedDoctor, setExpandedDoctor] = useState({ astitva: false, rahul: false });
 
+  // Fetch treatments
   useEffect(() => {
     const fetchTreatments = async () => {
       try {
         setLoading(true);
         const response = await API.get("/treatments");
-        
-        // Get first 6 treatments for homepage
         const rawData = Array.isArray(response.data) ? response.data : [];
         const treatmentData = rawData.slice(0, 6);
         setTreatments(treatmentData);
@@ -82,99 +81,136 @@ const Home = () => {
               Our clinical leadership brings decades of experience and compassionate care.
             </p>
           </div>
+
           <div className="core-doctors-grid">
+            {/* DR. ANAND CHAUDHARY */}
             <article className="core-doctor-card reveal-on-scroll">
               <div className="core-doctor-photo">
-                <img src="/Images/DrAstitvaAgarwal.webp" alt="Dr Astitva Agarwal" loading="lazy" />
+                <img src="/Images/DrAnandChaudhary.webp" alt="Dr Anand Chaudhary" loading="lazy" />
               </div>
               <div className="core-doctor-body">
-                <h3>Dr. Astitva Agarwal</h3>
+                <h3>Dr. Anand Chaudhary</h3>
                 <p className="doctor-qualification">
-                  BDS, MDS | Orthodontist | Braces & Aligner Specialist
+                  Founder, Crown Dental | Dental Surgeon | Implant & Smile Design Specialist
                 </p>
                 <p style={{ marginBottom: "16px", lineHeight: "1.6" }}>
-                  Dr. Astitva Agarwal is a highly skilled orthodontist with 7+ years of experience delivering precise smile corrections through modern braces and aligner therapies.
-                  {!expandedDoctor.astitva && (
+                  Dr. Anand Chaudhary is the visionary founder of Crown Dental with 12+ years of
+                  extensive experience in advanced implantology and comprehensive smile design. His
+                  commitment to excellence has transformed countless smiles with cutting-edge dental
+                  solutions.
+                  {!expandedDoctor.anand && (
                     <>
                       {" "}
-                      <button 
-                        className="doc-btn-read-more-inline" 
-                        onClick={() => setExpandedDoctor(prev => ({ ...prev, astitva: !prev.astitva }))}
+                      <button
+                        className="doc-btn-read-more-inline"
+                        onClick={() =>
+                          setExpandedDoctor((prev) => ({ ...prev, anand: !prev.anand }))
+                        }
                       >
                         Read More →
                       </button>
                     </>
                   )}
                 </p>
-                {expandedDoctor.astitva && (
+                {expandedDoctor.anand && (
                   <>
                     <p style={{ marginBottom: "16px", lineHeight: "1.6" }}>
-                      Holding a BDS and MDS in Orthodontics, he specialises in diagnosing and treating complex bite and alignment issues with a focus on long-term functional and aesthetic results.
+                      Specializing in advanced implant dentistry, Dr. Chaudhary combines technical
+                      precision with artistic vision to create natural-looking, functional
+                      restorations. His expertise spans complex cases and full-mouth rehabilitation,
+                      making him a trusted choice for patients seeking comprehensive dental
+                      transformation.
                     </p>
                     <p style={{ marginBottom: "16px", lineHeight: "1.6" }}>
-                      His patient-first approach and expertise with both traditional braces and clear aligners make him a preferred choice for patients of all ages seeking a confident, well-aligned smile.
+                      With a patient-centric philosophy and state-of-the-art technology, he ensures
+                      every procedure exceeds expectations in comfort, aesthetics, and longevity.
+                      Over 4,500 successful treatments and 4,000+ satisfied patients are testament
+                      to his excellence.
                     </p>
                     <p style={{ fontWeight: "600", marginBottom: "16px", color: "#6f6048" }}>
-                      Signature Expertise: Braces | Aligners | Smile Correction | Jaw Alignment
+                      Signature Expertise: Advanced Implants | Smile Makeovers | Laser Dentistry |
+                      Full Mouth Rehabilitation
                     </p>
-                    <button 
-                      className="doc-btn-read-more-inline" 
-                      onClick={() => setExpandedDoctor(prev => ({ ...prev, astitva: !prev.astitva }))}
+                    <button
+                      className="doc-btn-read-more-inline"
+                      onClick={() =>
+                        setExpandedDoctor((prev) => ({ ...prev, anand: !prev.anand }))
+                      }
                     >
                       Read Less ↑
                     </button>
                   </>
                 )}
                 <div className="doc-btn-container">
-                  <button className="doc-btn" onClick={() => setLeadOpen(true)}>Book a Consultation</button>
+                  <button className="doc-btn" onClick={() => setLeadOpen(true)}>
+                    Book a Consultation
+                  </button>
                 </div>
               </div>
             </article>
 
+            {/* DR. SWATI CHAUDHARY */}
             <article className="core-doctor-card reveal-on-scroll">
               <div className="core-doctor-photo">
-                <img src="/Images/DrRahulSeth.JPG" alt="Dr Rahul Seth" loading="lazy" />
+                <img src="/Images/DrSwaatiChaudhary.webp" alt="Dr Swati Chaudhary" loading="lazy" />
               </div>
               <div className="core-doctor-body">
-                <h3>Dr. Rahul Seth</h3>
+                <h3>Dr. Swati Chaudhary</h3>
                 <p className="doctor-qualification">
-                  Oral and Maxillofacial Surgeon | Jaw & Facial Surgery Specialist
+                  Executive Director, AngelLife Cosmetology & Wellness | Aesthetic Physician &
+                  Dental Surgeon
                 </p>
                 <p style={{ marginBottom: "16px", lineHeight: "1.6" }}>
-                  Dr. Rahul Seth is an experienced oral and maxillofacial surgeon with 11+ years of expertise in complex jaw surgeries, facial trauma management, and reconstructive procedures.
-                  {!expandedDoctor.rahul && (
+                  Dr. Swati Chaudhary is an accomplished aesthetic physician and dental surgeon with
+                  10+ years of experience in cosmetic dentistry and advanced aesthetic treatments.
+                  As Executive Director of AngelLife Cosmetology & Wellness, she specializes in
+                  transforming smiles and rejuvenating facial aesthetics.
+                  {!expandedDoctor.swati && (
                     <>
                       {" "}
-                      <button 
-                        className="doc-btn-read-more-inline" 
-                        onClick={() => setExpandedDoctor(prev => ({ ...prev, rahul: !prev.rahul }))}
+                      <button
+                        className="doc-btn-read-more-inline"
+                        onClick={() =>
+                          setExpandedDoctor((prev) => ({ ...prev, swati: !prev.swati }))
+                        }
                       >
                         Read More →
                       </button>
                     </>
                   )}
                 </p>
-                {expandedDoctor.rahul && (
+                {expandedDoctor.swati && (
                   <>
                     <p style={{ marginBottom: "16px", lineHeight: "1.6" }}>
-                      Specialising in both surgical and non-surgical management of facial conditions, Dr. Seth brings precision and care to every procedure — from wisdom tooth extractions to full facial reconstructive surgery.
+                      Dr. Swati excels in integrating dental aesthetics with facial rejuvenation,
+                      utilizing the latest laser technologies and anti-aging treatments. Her holistic
+                      approach ensures not just beautiful teeth, but a harmonious, youthful facial
+                      appearance that enhances overall confidence.
                     </p>
                     <p style={{ marginBottom: "16px", lineHeight: "1.6" }}>
-                      His calm, reassuring approach and advanced surgical skills ensure patients feel safe and well-cared-for throughout their treatment journey.
+                      With a keen eye for aesthetic harmony and deep understanding of facial anatomy,
+                      she creates personalized treatment plans that bring out each patient's natural
+                      beauty. Her dedication to excellence is reflected in 3,800+ successful
+                      treatments and 3,500+ delighted patients.
                     </p>
                     <p style={{ fontWeight: "600", marginBottom: "16px", color: "#6f6048" }}>
-                      Signature Expertise: Jaw Surgery | Facial Trauma | Wisdom Tooth Removal | Reconstructive Surgery
+                      Signature Expertise: Skin Rejuvenation | Anti-Aging Treatments | Laser
+                      Aesthetics | Facial Contouring
                     </p>
-                    <button 
-                      className="doc-btn-read-more-inline" 
-                      onClick={() => setExpandedDoctor(prev => ({ ...prev, rahul: !prev.rahul }))}
+                    <button
+                      className="doc-btn-read-more-inline"
+                      onClick={() =>
+                        setExpandedDoctor((prev) => ({ ...prev, swati: !prev.swati }))
+                      }
                     >
                       Read Less ↑
                     </button>
                   </>
                 )}
                 <div className="doc-btn-container">
-                  <button className="doc-btn" onClick={() => setLeadOpen(true)}>Book a Consultation</button>
+                  <button className="doc-btn" onClick={() => setLeadOpen(true)}>
+                    Book a Consultation
+                  </button>
                 </div>
               </div>
             </article>
@@ -195,682 +231,239 @@ const Home = () => {
           </div>
 
           <div className="highlights-grid">
+            <article className="highlight-card reveal-on-scroll" data-reveal-delay="0">
+              <ShieldCheck size={48} strokeWidth={1.4} className="why-icon" />
+              <h3>Strict Sterilization</h3>
+              <p>International protocols ensure complete safety.</p>
+            </article>
 
-  <article className="highlight-card reveal-on-scroll" data-reveal-delay="0">
-    <ShieldCheck size={48} strokeWidth={1.4} className="why-icon" />
-    <h3>Strict Sterilization</h3>
-    <p>International protocols ensure complete safety.</p>
-  </article>
+            <article className="highlight-card reveal-on-scroll" data-reveal-delay="80">
+              <Users size={48} strokeWidth={1.4} className="why-icon" />
+              <h3>Expert Team</h3>
+              <p>Highly qualified specialists with years of experience.</p>
+            </article>
 
-  <article className="highlight-card reveal-on-scroll" data-reveal-delay="80">
-    <Users size={48} strokeWidth={1.4} className="why-icon" />
-    <h3>Experienced Team</h3>
-    <p>Experienced Professionals delivering precise and reliable treatments.</p>
-  </article>
+            <article className="highlight-card reveal-on-scroll" data-reveal-delay="160">
+              <HandHeart size={48} strokeWidth={1.4} className="why-icon" />
+              <h3>Compassionate Care</h3>
+              <p>Patient comfort and satisfaction are paramount.</p>
+            </article>
 
-  <article className="highlight-card reveal-on-scroll" data-reveal-delay="160">
-    <HandHeart size={48} strokeWidth={1.4} className="why-icon" />
-    <h3>Painless Procedures</h3>
-    <p>Minimal invasive procedure for painless a experience.</p>
-  </article>
+            <article className="highlight-card reveal-on-scroll" data-reveal-delay="240">
+              <Scan size={48} strokeWidth={1.4} className="why-icon" />
+              <h3>Advanced Technology</h3>
+              <p>Latest diagnostic and treatment equipment.</p>
+            </article>
 
-  <article className="highlight-card reveal-on-scroll" data-reveal-delay="240">
-    <Scan size={48} strokeWidth={1.4} className="why-icon" />
-    <h3>Modern Technology</h3>
-    <p>Digital X-rays, lasers, and 3D imaging equipment.</p>
-  </article>
+            <article className="highlight-card reveal-on-scroll" data-reveal-delay="320">
+              <Wallet size={48} strokeWidth={1.4} className="why-icon" />
+              <h3>Transparent Pricing</h3>
+              <p>Clear costs with no hidden charges.</p>
+            </article>
 
-  <article className="highlight-card reveal-on-scroll" data-reveal-delay="320">
-    <Wallet size={48} strokeWidth={1.4} className="why-icon" />
-    <h3>Transparent Pricing</h3>
-    <p>No hidden charges. Clear & honest estimates.</p>
-  </article>
-
-  <article className="highlight-card reveal-on-scroll" data-reveal-delay="400">
-    <Smile size={48} strokeWidth={1.4} className="why-icon" />
-    <h3>Friendly Staff</h3>
-    <p>A warm and welcoming environment for all patients.</p>
-  </article>
-
-</div>
-
+            <article className="highlight-card reveal-on-scroll" data-reveal-delay="400">
+              <Smile size={48} strokeWidth={1.4} className="why-icon" />
+              <h3>Results You'll Love</h3>
+              <p>Proven track record of beautiful, lasting smiles.</p>
+            </article>
+          </div>
         </div>
       </section>
 
       {/* =========================================================
-          SERVICES SECTION
+          MODERN FACILITY
       ========================================================== */}
-      <section className="services-section" id="services">
-  <div className="section-inner">
-    <div className="section-header" style={{ textAlign: "center", marginBottom: "48px" }}>
-      <h2>Our Services</h2>
-      <p style={{ maxWidth: "680px", margin: "0 auto" }}>
-        Comprehensive dental care tailored to your unique needs, delivered by experienced professionals using state-of-the-art technology.
-      </p>
-    </div>
-
-    <div className="services-grid">
-      {(() => {
-        if (loading) {
-          return Array.from({ length: 6 }).map((_, idx) => (
-            <div key={idx} className="service-card" style={{ opacity: 0.5 }}>
-              <div style={{ width: "100%", height: "180px", background: "#e0e0e0", marginBottom: "12px" }}></div>
-              <div>
-                <h3>Loading...</h3>
-                <p>Please wait...</p>
-              </div>
-            </div>
-          ));
-        }
-        
-        if (treatments.length > 0) {
-          return treatments.map((treatment) => {
-            
-            // Get description from available fields
-            const description = treatment.metaDescription || 
-                              (treatment.seoCopy ? treatment.seoCopy.substring(0, 100) : '') || 
-                              'Explore our professional dental treatment options.';
-            
-            return (
-              <Link 
-                key={treatment._id}
-                to={`/treatments/${treatment.slug}`} 
-                className="service-card"
-              >
-                <img 
-                  src={treatment.heroImage} 
-                  alt={treatment.title} 
-                  className="service-image"
-                  loading="lazy"
-                />
-                <div>
-                  <h3>{treatment.title}</h3>
-                  <p>
-                    {description.length > 100 ? description.substring(0, 100) + '...' : description}
-                  </p>
-                </div>
-              </Link>
-            );
-          });
-        }
-        
-        return (
-          <div style={{ gridColumn: "1 / -1", textAlign: "center", padding: "40px" }}>
-            <p style={{ fontSize: "18px", color: "#6f6048" }}>
-              No treatments available at the moment.
+      <section className="facility-section">
+        <div className="section-inner">
+          <div className="section-header" style={{ textAlign: "center", marginBottom: "48px" }}>
+            <h2>Our Modern Facility</h2>
+            <p style={{ maxWidth: "700px", margin: "0 auto" }}>
+              Take a virtual tour of our state-of-the-art clinic designed for your comfort and
+              safety.
             </p>
           </div>
-        );
-      })()}
-    </div>
 
-    <div style={{ textAlign: "center", marginTop: "48px" }}>
-     <Link to="/treatments" className="btn-secondary">
-  View All Services
-</Link>
-    </div>
-  </div>
-</section>
+          <div className="facility-grid">
+            <a
+              href="/gallery"
+              className="facility-card reveal-on-scroll"
+              data-reveal-delay="0"
+              style={{ textDecoration: "none", color: "inherit", cursor: "pointer" }}
+            >
+              <Building2 size={52} strokeWidth={1.5} className="facility-icon" />
+              <p className="facility-title">Reception Area</p>
+            </a>
 
+            <a
+              href="/gallery"
+              className="facility-card reveal-on-scroll"
+              data-reveal-delay="70"
+              style={{ textDecoration: "none", color: "inherit", cursor: "pointer" }}
+            >
+              <Armchair size={52} strokeWidth={1.5} className="facility-icon" />
+              <p className="facility-title">Treatment Rooms</p>
+            </a>
 
-     
-      {/* =========================================================
-    MEET OUR EXPERT DENTAL TEAM
-========================================================== */}
-<section className="doctors-section">
-  <div className="section-inner">
+            <a
+              href="/gallery"
+              className="facility-card reveal-on-scroll"
+              data-reveal-delay="140"
+              style={{ textDecoration: "none", color: "inherit", cursor: "pointer" }}
+            >
+              <Microscope size={52} strokeWidth={1.5} className="facility-icon" />
+              <p className="facility-title">Modern Equipment</p>
+            </a>
 
-    <div className="section-header" style={{ textAlign: "center", marginBottom: "48px" }}>
-      <h2>Meet Our Expert Dental Team</h2>
-      <p style={{ maxWidth: "760px", margin: "0 auto" }}>
-        Our experienced specialists are dedicated to providing you with exceptional care
-        and lasting results.
-      </p>
-    </div>
+            <a
+              href="/gallery"
+              className="facility-card reveal-on-scroll"
+              data-reveal-delay="210"
+              style={{ textDecoration: "none", color: "inherit", cursor: "pointer" }}
+            >
+              <Droplets size={52} strokeWidth={1.5} className="facility-icon" />
+              <p className="facility-title">Sterilization Unit</p>
+            </a>
 
-    <div className="doctors-grid">
+            <a
+              href="/gallery"
+              className="facility-card reveal-on-scroll"
+              data-reveal-delay="280"
+              style={{ textDecoration: "none", color: "inherit", cursor: "pointer" }}
+            >
+              <Frame size={52} strokeWidth={1.5} className="facility-icon" />
+              <p className="facility-title">Waiting Lounge</p>
+            </a>
 
-      <article className="doctor-card reveal-on-scroll" data-reveal-delay="0">
-        <img src="/Images/DrAstitvaAgarwal.webp" alt="Dr. Astitva Agarwal" className="doctor-photo"
-          onError={(e) => { e.target.style.display="none"; e.target.parentNode.querySelector(".doctor-fallback").style.display="flex"; }}
-        />
-        <div className="doctor-fallback doctor-image-placeholder" style={{display:"none"}}>🦷</div>
-        <h3>Dr. Astitva Agarwal</h3>
-        <p className="doctor-qualification">BDS, MDS</p>
-        <p className="doctor-specialization">Orthodontist</p>
-        <span className="doctor-experience">7+ Years Experience</span>
-      </article>
-
-      <article className="doctor-card reveal-on-scroll" data-reveal-delay="100">
-        <img src="/Images/DrPrashashtaMishra.webp" alt="Dr. Prashashta Mishra" className="doctor-photo"
-          onError={(e) => { e.target.style.display="none"; e.target.parentNode.querySelector(".doctor-fallback").style.display="flex"; }}
-        />
-        <div className="doctor-fallback doctor-image-placeholder" style={{display:"none"}}>🦷</div>
-        <h3>Dr. Prashashta Mishra</h3>
-        <p className="doctor-qualification">BDS, MDS</p>
-        <p className="doctor-specialization">Oral Cancer Specialist</p>
-        <span className="doctor-experience">9+ Years Experience</span>
-      </article>
-
-      <article className="doctor-card reveal-on-scroll" data-reveal-delay="200">
-        <img src="/Images/DrRahulSeth.JPG" alt="Dr. Rahul Seth" className="doctor-photo"
-          onError={(e) => { e.target.style.display="none"; e.target.parentNode.querySelector(".doctor-fallback").style.display="flex"; }}
-        />
-        <div className="doctor-fallback doctor-image-placeholder" style={{display:"none"}}>🦷</div>
-        <h3>Dr. Rahul Seth</h3>
-        <p className="doctor-qualification">BDS, MDS</p>
-        <p className="doctor-specialization">Oral and Maxillofacial Surgeon</p>
-        <span className="doctor-experience">11+ Years Experience</span>
-      </article>
-
-      <article className="doctor-card reveal-on-scroll" data-reveal-delay="300">
-        <img src="/Images/DrSatyamSingh.webp" alt="Dr. (Col.) Satyam Singh" className="doctor-photo"
-          onError={(e) => { e.target.style.display="none"; e.target.parentNode.querySelector(".doctor-fallback").style.display="flex"; }}
-        />
-        <div className="doctor-fallback doctor-image-placeholder" style={{display:"none"}}>🦷</div>
-        <h3>Dr. (Col.) Satyam Singh</h3>
-        <p className="doctor-qualification">BDS, MDS</p>
-        <p className="doctor-specialization">Full Mouth Rehab Specialist</p>
-        <span className="doctor-experience">15+ Years Experience</span>
-      </article>
-
-    </div>
-
-    <div style={{ textAlign: "center", marginTop: "48px" }}>
-      <a href="/doctors" className="btn-secondary">View All Doctors</a>
-    </div>
-
-  </div>
-</section>
-
+            <a
+              href="/gallery"
+              className="facility-card reveal-on-scroll"
+              data-reveal-delay="350"
+              style={{ textDecoration: "none", color: "inherit", cursor: "pointer" }}
+            >
+              <Sparkles size={52} strokeWidth={1.5} className="facility-icon" />
+              <p className="facility-title">Cosmetic Suite</p>
+            </a>
+          </div>
+        </div>
+      </section>
 
       {/* =========================================================
-          TESTIMONIALS - GOOGLE REVIEWS (FULL WIDTH)
+          ADVANCED TECHNOLOGY
       ========================================================== */}
-     <section className="testimonials-section">
-    <div className="section-header" style={{ textAlign: "center", marginBottom: "48px", padding: "0 20px" }}>
-      <h2>What Our Patients Say</h2>
-      <p style={{ maxWidth: "700px", margin: "0 auto" }}>
-        Real experiences from people who trust us with their smiles.
-      </p>
-    </div>
-
-    <div className="testimonials-scroll-container">
-      <div className="testimonials-scroll-track">
-        {/* CARD 1 - Mohit Shrivastava */}
-        <article className="testimonial-card">
-          <div className="author">
-            <div className="author-avatar" style={{ background: "#4285f4" }}>M</div>
-            <div>
-              <p className="author-name">Mohit Shrivastava</p>
-              <div className="author-rating">⭐⭐⭐⭐⭐</div>
-            </div>
-          </div>
-          <p className="testimonial-text">
-            Staff behaviour is very nice, doctor treatment also good and reasonable price. Thank you 😊😊😊
+      <section className="technology-section">
+        <div className="tech-header">
+          <h2>Advanced Technology We Use</h2>
+          <p>
+            State-of-the-art equipment ensuring precision, safety, and comfort in every procedure.
           </p>
-        </article>
+        </div>
 
-        {/* CARD 2 - Laxmi Jaiswal */}
-        <article className="testimonial-card">
-          <div className="author">
-            <div className="author-avatar" style={{ background: "#5f6368" }}>L</div>
-            <div>
-              <p className="author-name">Laxmi Jaiswal</p>
-              <div className="author-rating">⭐⭐⭐⭐⭐</div>
+        <div className="technology-grid">
+          <article className="tech-card reveal-on-scroll" data-reveal-delay="0">
+            <div className="tech-image-wrapper">
+              <img
+                src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400&h=300&fit=crop&q=80"
+                alt="Digital X-Rays"
+                className="tech-image"
+                loading="lazy"
+              />
             </div>
-          </div>
-          <p className="testimonial-text">
-            The best dental clinic in prayagraj Dr Anand Chaudhary highly skilled and profound dental surgeon
-          </p>
-        </article>
+            <h3>Digital X-Rays</h3>
+            <p>90% less radiation exposure with instant high-resolution imaging for accurate diagnosis.</p>
+          </article>
 
-        {/* CARD 3 - Indal Yadav */}
-        <article className="testimonial-card">
-          <div className="author">
-            <div className="author-avatar" style={{ background: "#fbbc04" }}>I</div>
-            <div>
-              <p className="author-name">Indal Yadav</p>
-              <div className="author-rating">⭐⭐⭐⭐⭐</div>
+          <article className="tech-card reveal-on-scroll" data-reveal-delay="100">
+            <div className="tech-image-wrapper">
+              <img
+                src="https://images.unsplash.com/photo-1581594549595-35f6edc7b762?w=400&h=300&fit=crop&q=80"
+                alt="Laser Dentistry"
+                className="tech-image"
+                loading="lazy"
+              />
             </div>
-          </div>
-          <p className="testimonial-text">
-            Here, I would like to talk a very good dentist who is Dr Nandan gupta. He is an expert of dental problems. I made him treatment of my RCT in 2020 but till now there has been no problem with my RCT. So I would recommend anybody who is facing dental problems, contact dr Nandan gupta. He is not only a good doctor but also a very good human being.
-          </p>
-        </article>
+            <h3>Laser Dentistry</h3>
+            <p>Minimally invasive procedures with faster healing and reduced discomfort.</p>
+          </article>
 
-        {/* CARD 4 - Sadhna */}
-        <article className="testimonial-card">
-          <div className="author">
-            <div className="author-avatar" style={{ background: "#e91e63" }}>S</div>
-            <div>
-              <p className="author-name">Sadhna</p>
-              <div className="author-rating">⭐⭐⭐⭐⭐</div>
+          <article className="tech-card reveal-on-scroll" data-reveal-delay="200">
+            <div className="tech-image-wrapper">
+              <img
+                src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=400&h=300&fit=crop&q=80"
+                alt="Intraoral Scanner"
+                className="tech-image"
+                loading="lazy"
+              />
             </div>
-          </div>
-          <p className="testimonial-text">
-            Good quality of dental services available here and behaviour of Dr. Anand Chaudhary is also nice. Clinic is very hygienic. Staff are too much supportive, really I satisfied with their all things.
-          </p>
-        </article>
+            <h3>Intraoral Scanner</h3>
+            <p>3D digital impressions eliminating messy traditional molds for precise results.</p>
+          </article>
 
-        {/* CARD 5 - Kumar Amit */}
-        <article className="testimonial-card">
-          <div className="author">
-            <div className="author-avatar" style={{ background: "#795548" }}>K</div>
-            <div>
-              <p className="author-name">Kumar Amit</p>
-              <div className="author-rating">⭐⭐⭐⭐⭐</div>
+          <article className="tech-card reveal-on-scroll" data-reveal-delay="300">
+            <div className="tech-image-wrapper">
+              <img
+                src="https://images.unsplash.com/photo-1583911860205-72f8ac8ddcbe?w=400&h=300&fit=crop&q=80"
+                alt="Autoclave Sterilization"
+                className="tech-image"
+                loading="lazy"
+              />
             </div>
-          </div>
-          <p className="testimonial-text">
-            Your work has made a remarkable difference, and your passion is evident in everything you do.
-          </p>
-        </article>
-
-        {/* CARD 6 - Pratap Singh */}
-        <article className="testimonial-card">
-          <div className="author">
-            <div className="author-avatar" style={{ background: "#673ab7" }}>P</div>
-            <div>
-              <p className="author-name">Pratap Singh</p>
-              <div className="author-rating">⭐⭐⭐⭐⭐</div>
-            </div>
-          </div>
-          <p className="testimonial-text">
-            Excellent team work with minimum reaction time.
-          </p>
-        </article>
-
-        {/* CARD 7 - Rajesh Kumar */}
-        <article className="testimonial-card">
-          <div className="author">
-            <div className="author-avatar" style={{ background: "#34a853" }}>R</div>
-            <div>
-              <p className="author-name">Rajesh Kumar</p>
-              <div className="author-rating">⭐⭐⭐⭐⭐</div>
-            </div>
-          </div>
-          <p className="testimonial-text">
-            Amazing experience! Dr. Anand's expertise in dental implants is outstanding. The entire procedure was painless and the results exceeded my expectations.
-          </p>
-        </article>
-
-        {/* CARD 8 - Priya Sharma */}
-        <article className="testimonial-card">
-          <div className="author">
-            <div className="author-avatar" style={{ background: "#ff6d00" }}>P</div>
-            <div>
-              <p className="author-name">Priya Sharma</p>
-              <div className="author-rating">⭐⭐⭐⭐⭐</div>
-            </div>
-          </div>
-          <p className="testimonial-text">
-            Best dental clinic in the city! The staff is incredibly professional and caring. My smile makeover turned out perfect. Highly recommended!
-          </p>
-        </article>
-
-        {/* CARD 9 - Amit Verma */}
-        <article className="testimonial-card">
-          <div className="author">
-            <div className="author-avatar" style={{ background: "#9c27b0" }}>A</div>
-            <div>
-              <p className="author-name">Amit Verma</p>
-              <div className="author-rating">⭐⭐⭐⭐⭐</div>
-            </div>
-          </div>
-          <p className="testimonial-text">
-            Crown Dental has state-of-the-art equipment and maintains excellent hygiene standards. Dr. Swati's cosmetic dentistry work is exceptional.
-          </p>
-        </article>
-
-        {/* CARD 10 - Neha Patel */}
-        <article className="testimonial-card">
-          <div className="author">
-            <div className="author-avatar" style={{ background: "#00acc1" }}>N</div>
-            <div>
-              <p className="author-name">Neha Patel</p>
-              <div className="author-rating">⭐⭐⭐⭐⭐</div>
-            </div>
-          </div>
-          <p className="testimonial-text">
-            My family has been coming here for years. The doctors are highly skilled and always take time to explain procedures. Truly a five-star experience!
-          </p>
-        </article>
-
-        {/* CARD 11 - Vikram Singh */}
-        <article className="testimonial-card">
-          <div className="author">
-            <div className="author-avatar" style={{ background: "#d32f2f" }}>V</div>
-            <div>
-              <p className="author-name">Vikram Singh</p>
-              <div className="author-rating">⭐⭐⭐⭐⭐</div>
-            </div>
-          </div>
-          <p className="testimonial-text">
-            Professional service from start to finish. The laser dentistry treatment was quick and completely painless. Very impressed with the technology they use.
-          </p>
-        </article>
-
-        {/* CARD 12 - Anjali Gupta */}
-        <article className="testimonial-card">
-          <div className="author">
-            <div className="author-avatar" style={{ background: "#f57c00" }}>A</div>
-            <div>
-              <p className="author-name">Anjali Gupta</p>
-              <div className="author-rating">⭐⭐⭐⭐⭐</div>
-            </div>
-          </div>
-          <p className="testimonial-text">
-            I was nervous about my root canal but the team made me feel so comfortable. The procedure was painless and the follow-up care was excellent.
-          </p>
-        </article>
-
-        {/* CARD 13 - Rahul Mishra */}
-        <article className="testimonial-card">
-          <div className="author">
-            <div className="author-avatar" style={{ background: "#1976d2" }}>R</div>
-            <div>
-              <p className="author-name">Rahul Mishra</p>
-              <div className="author-rating">⭐⭐⭐⭐⭐</div>
-            </div>
-          </div>
-          <p className="testimonial-text">
-            Outstanding dental care! The clinic is spotless, staff is friendly, and Dr. Anand's attention to detail is remarkable. Worth every penny!
-          </p>
-        </article>
-
-        {/* CARD 14 - Deepika Rao */}
-        <article className="testimonial-card">
-          <div className="author">
-            <div className="author-avatar" style={{ background: "#7b1fa2" }}>D</div>
-            <div>
-              <p className="author-name">Deepika Rao</p>
-              <div className="author-rating">⭐⭐⭐⭐⭐</div>
-            </div>
-          </div>
-          <p className="testimonial-text">
-            My teeth whitening results are amazing! The team is professional, the clinic is modern, and the prices are very reasonable. Highly satisfied!
-          </p>
-        </article>
-
-        {/* CARD 15 - Sanjay Tiwari */}
-        <article className="testimonial-card">
-          <div className="author">
-            <div className="author-avatar" style={{ background: "#388e3c" }}>S</div>
-            <div>
-              <p className="author-name">Sanjay Tiwari</p>
-              <div className="author-rating">⭐⭐⭐⭐⭐</div>
-            </div>
-          </div>
-          <p className="testimonial-text">
-            Best decision to choose Crown Dental for my dental implants. The entire process was smooth, and the results look completely natural. Thank you team!
-          </p>
-        </article>
-
-        {/* Duplicate cards for seamless loop */}
-        <article className="testimonial-card">
-          <div className="author">
-            <div className="author-avatar" style={{ background: "#4285f4" }}>M</div>
-            <div>
-              <p className="author-name">Mohit Shrivastava</p>
-              <div className="author-rating">⭐⭐⭐⭐⭐</div>
-            </div>
-          </div>
-          <p className="testimonial-text">
-            Staff behaviour is very nice, doctor treatment also good and reasonable price. Thank you 😊😊😊
-          </p>
-        </article>
-
-        <article className="testimonial-card">
-          <div className="author">
-            <div className="author-avatar" style={{ background: "#5f6368" }}>L</div>
-            <div>
-              <p className="author-name">Laxmi Jaiswal</p>
-              <div className="author-rating">⭐⭐⭐⭐⭐</div>
-            </div>
-          </div>
-          <p className="testimonial-text">
-            The best dental clinic in prayagraj Dr Anand Chaudhary highly skilled and profound dental surgeon
-          </p>
-        </article>
-
-        <article className="testimonial-card">
-          <div className="author">
-            <div className="author-avatar" style={{ background: "#fbbc04" }}>I</div>
-            <div>
-              <p className="author-name">Indal Yadav</p>
-              <div className="author-rating">⭐⭐⭐⭐⭐</div>
-            </div>
-          </div>
-          <p className="testimonial-text">
-            Here, I would like to talk a very good dentist who is Dr Nandan gupta. He is an expert of dental problems. I made him treatment of my RCT in 2020 but till now there has been no problem with my RCT. So I would recommend anybody who is facing dental problems, contact dr Nandan gupta. He is not only a good doctor but also a very good human being.
-          </p>
-        </article>
-
-        <article className="testimonial-card">
-          <div className="author">
-            <div className="author-avatar" style={{ background: "#e91e63" }}>S</div>
-            <div>
-              <p className="author-name">Sadhna</p>
-              <div className="author-rating">⭐⭐⭐⭐⭐</div>
-            </div>
-          </div>
-          <p className="testimonial-text">
-            Good quality of dental services available here and behaviour of Dr. Anand Chaudhary is also nice. Clinic is very hygienic. Staff are too much supportive, really I satisfied with their all things.
-          </p>
-        </article>
-
-        <article className="testimonial-card">
-          <div className="author">
-            <div className="author-avatar" style={{ background: "#795548" }}>K</div>
-            <div>
-              <p className="author-name">Kumar Amit</p>
-              <div className="author-rating">⭐⭐⭐⭐⭐</div>
-            </div>
-          </div>
-          <p className="testimonial-text">
-            Your work has made a remarkable difference, and your passion is evident in everything you do.
-          </p>
-        </article>
-
-        <article className="testimonial-card">
-          <div className="author">
-            <div className="author-avatar" style={{ background: "#673ab7" }}>P</div>
-            <div>
-              <p className="author-name">Pratap Singh</p>
-              <div className="author-rating">⭐⭐⭐⭐⭐</div>
-            </div>
-          </div>
-          <p className="testimonial-text">
-            Excellent team work with minimum reaction time.
-          </p>
-        </article>
-
-        <article className="testimonial-card">
-          <div className="author">
-            <div className="author-avatar" style={{ background: "#34a853" }}>R</div>
-            <div>
-              <p className="author-name">Rajesh Kumar</p>
-              <div className="author-rating">⭐⭐⭐⭐⭐</div>
-            </div>
-          </div>
-          <p className="testimonial-text">
-            Amazing experience! Dr. Anand's expertise in dental implants is outstanding. The entire procedure was painless and the results exceeded my expectations.
-          </p>
-        </article>
-      </div>
-    </div>
-</section>
+            <h3>Autoclave Sterilization</h3>
+            <p>Hospital-grade sterilization ensuring complete elimination of pathogens.</p>
+          </article>
+        </div>
+      </section>
 
       {/* =========================================================
-          MODERN TECHNOLOGY
+          LEAD FORM MODAL
       ========================================================== */}
-       <section className="facility-section">
-  <div className="section-inner">
-    <div className="section-header" style={{ textAlign: "center", marginBottom: "48px" }}>
-      <h2>Our Modern Facility</h2>
-      <p style={{ maxWidth: "700px", margin: "0 auto" }}>
-        Take a virtual tour of our state-of-the-art clinic designed for your comfort and safety.
-      </p>
-    </div>
+      {leadOpen && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            width: "100vw",
+            height: "100vh",
+            background: "rgba(0,0,0,0.5)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+          }}
+        >
+          <div
+            style={{
+              background: "white",
+              padding: 30,
+              borderRadius: 14,
+              width: "90%",
+              maxWidth: 420,
+              position: "relative",
+            }}
+          >
+            <button
+              onClick={() => setLeadOpen(false)}
+              style={{
+                position: "absolute",
+                top: 10,
+                right: 10,
+                fontSize: 20,
+                background: "none",
+                border: "none",
+                cursor: "pointer",
+              }}
+            >
+              ×
+            </button>
 
-    <div className="facility-grid">
-      <a href="/gallery" className="facility-card reveal-on-scroll" data-reveal-delay="0" style={{ textDecoration: "none", color: "inherit", cursor: "pointer" }}>
-        <Building2 size={52} strokeWidth={1.5} className="facility-icon" />
-        <p className="facility-title">Reception Area</p>
-      </a>
+            <h2 style={{ marginBottom: 16 }}>Book a Consultation</h2>
 
-      <a href="/gallery" className="facility-card reveal-on-scroll" data-reveal-delay="70" style={{ textDecoration: "none", color: "inherit", cursor: "pointer" }}>
-        <Armchair size={52} strokeWidth={1.5} className="facility-icon" />
-        <p className="facility-title">Treatment Rooms</p>
-      </a>
-
-      <a href="/gallery" className="facility-card reveal-on-scroll" data-reveal-delay="140" style={{ textDecoration: "none", color: "inherit", cursor: "pointer" }}>
-        <Microscope size={52} strokeWidth={1.5} className="facility-icon" />
-        <p className="facility-title">Modern Equipment</p>
-      </a>
-
-      <a href="/gallery" className="facility-card reveal-on-scroll" data-reveal-delay="210" style={{ textDecoration: "none", color: "inherit", cursor: "pointer" }}>
-        <Droplets size={52} strokeWidth={1.5} className="facility-icon" />
-        <p className="facility-title">Sterilization Unit</p>
-      </a>
-
-      <a href="/gallery" className="facility-card reveal-on-scroll" data-reveal-delay="280" style={{ textDecoration: "none", color: "inherit", cursor: "pointer" }}>
-        <Frame size={52} strokeWidth={1.5} className="facility-icon" />
-        <p className="facility-title">Waiting Lounge</p>
-      </a>
-
-      <a href="/gallery" className="facility-card reveal-on-scroll" data-reveal-delay="350" style={{ textDecoration: "none", color: "inherit", cursor: "pointer" }}>
-        <Sparkles size={52} strokeWidth={1.5} className="facility-icon" />
-        <p className="facility-title">Cosmetic Suite</p>
-      </a>
-    </div>
-  </div>
-</section>
-      {/* =========================================================
-          TECHNOLOGY
-      ========================================================== */}
-    <section className="technology-section">
-    <div className="tech-header">
-      <h2>Advanced Technology We Use</h2>
-      <p>
-        State-of-the-art equipment ensuring precision, safety, and comfort in every procedure.
-      </p>
-    </div>
-
-    <div className="technology-grid">
-      
-      <article className="tech-card reveal-on-scroll" data-reveal-delay="0">
-        <div className="tech-image-wrapper">
-          <img 
-            src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400&h=300&fit=crop&q=80" 
-            alt="Digital X-Rays" 
-            className="tech-image"
-            loading="lazy"
-          />
+            <LeadForm source="Home Page - Consultation" onSuccess={() => setLeadOpen(false)} />
+          </div>
         </div>
-        <h3>Digital X-Rays</h3>
-        <p>90% less radiation exposure with instant high-resolution imaging for accurate diagnosis.</p>
-      </article>
-
-      <article className="tech-card reveal-on-scroll" data-reveal-delay="100">
-        <div className="tech-image-wrapper">
-          <img 
-            src="https://images.unsplash.com/photo-1581594549595-35f6edc7b762?w=400&h=300&fit=crop&q=80" 
-            alt="Laser Dentistry" 
-            className="tech-image"
-            loading="lazy"
-          />
-        </div>
-        <h3>Laser Dentistry</h3>
-        <p>Minimally invasive procedures with faster healing and reduced discomfort.</p>
-      </article>
-
-      <article className="tech-card reveal-on-scroll" data-reveal-delay="200">
-        <div className="tech-image-wrapper">
-          <img 
-            src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=400&h=300&fit=crop&q=80" 
-            alt="Intraoral Scanner" 
-            className="tech-image"
-            loading="lazy"
-          />
-        </div>
-        <h3>Intraoral Scanner</h3>
-        <p>3D digital impressions eliminating messy traditional molds for precise results.</p>
-      </article>
-
-      <article className="tech-card reveal-on-scroll" data-reveal-delay="300">
-        <div className="tech-image-wrapper">
-          <img 
-            src="https://images.unsplash.com/photo-1583911860205-72f8ac8ddcbe?w=400&h=300&fit=crop&q=80" 
-            alt="Autoclave Sterilization" 
-            className="tech-image"
-            loading="lazy"
-          />
-        </div>
-        <h3>Autoclave Sterilization</h3>
-        <p>Hospital-grade sterilization ensuring complete elimination of pathogens.</p>
-      </article>
-
-    </div>
-</section>
-
-{leadOpen && (
-  <div
-    style={{
-      position: "fixed",
-      top: 0,
-      left: 0,
-      width: "100vw",
-      height: "100vh",
-      background: "rgba(0,0,0,0.5)",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      zIndex: 9999,
-    }}
-  >
-    <div
-      style={{
-        background: "white",
-        padding: 30,
-        borderRadius: 14,
-        width: "90%",
-        maxWidth: 420,
-        position: "relative",
-      }}
-    >
-      <button
-        onClick={() => setLeadOpen(false)}
-        style={{
-          position: "absolute",
-          top: 10,
-          right: 10,
-          fontSize: 20,
-          background: "none",
-          border: "none",
-          cursor: "pointer",
-        }}
-      >
-        ×
-      </button>
-
-      <h2 style={{ marginBottom: 16 }}>Book a Consultation</h2>
-
-      <LeadForm
-        source="Home Page - Consultation"
-        onSuccess={() => setLeadOpen(false)}
-      />
-    </div>
-  </div>
-)}
-
+      )}
     </main>
   );
-}
-
+};
 
 export default Home;
-
-
-
