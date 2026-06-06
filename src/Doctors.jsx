@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { useAppointment } from "./AppointmentContext";
-import { Star, Award, Heart } from "lucide-react";
+import { Star, Award, Heart, Sparkles } from "lucide-react";
 
 export default function Doctors() {
   const { openModal } = useAppointment();
@@ -16,6 +16,15 @@ export default function Doctors() {
       happy: 2000,
     },
     {
+      name: "Dr. Rahul Seth",
+      title: "Oral and Maxillofacial Surgeon",
+      img: "/Images/DrRahulSeth.webp",
+      badges: ["Jaw Surgery", "Facial Trauma", "Wisdom Tooth Removal", "Reconstructive Surgery"],
+      exp: 11,
+      treatments: 3200,
+      happy: 3000,
+    },
+    {
       name: "Dr. Prashashta Mishra",
       title: "Oral Cancer Specialist",
       img: "/Images/DrPrashashtaMishra.webp",
@@ -23,15 +32,6 @@ export default function Doctors() {
       exp: 9,
       treatments: 1800,
       happy: 1700,
-    },
-    {
-      name: "Dr. Rahul Seth",
-      title: "Oral and Maxillofacial Surgeon",
-      img: "/Images/DrRahulSeth.JPG",
-      badges: ["Jaw Surgery", "Facial Trauma", "Wisdom Tooth Removal", "Reconstructive Surgery"],
-      exp: 11,
-      treatments: 3200,
-      happy: 3000,
     },
     {
       name: "Dr. (Col.) Satyam Singh",
@@ -42,13 +42,32 @@ export default function Doctors() {
       treatments: 4000,
       happy: 3800,
     },
+    {
+      name: "Dr. Shashwat Kumar",
+      title: "Dental Surgeon",
+      img: "/Images/DrShashwatKumar.webp",
+      badges: ["General Dentistry", "Root Canal Specialist", "Preventive Care", "Restorative Dentistry"],
+      exp: 4,
+      treatments: 1500,
+      happy: 1400,
+    },
   ];
 
+  // Fixed: IntersectionObserver so cards animate reliably on scroll
   useEffect(() => {
-    const fadeEls = document.querySelectorAll(".fade");
-    fadeEls.forEach((el, i) =>
-      setTimeout(() => el.classList.add("visible"), i * 150)
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry, i) => {
+          if (entry.isIntersecting) {
+            setTimeout(() => entry.target.classList.add("visible"), i * 200);
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1 }
     );
+    document.querySelectorAll(".fade").forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
   }, []);
 
   return (
@@ -65,14 +84,14 @@ export default function Doctors() {
       >
         Meet Our Expert Doctors
       </h1>
+
       <p
         style={{
           textAlign: "center",
           fontSize: 17,
           maxWidth: 750,
-          margin: "0 auto 48px",
+          margin: "0 auto 40px",
           color: "#5d5446",
-          lineHeight: 1.6,
         }}
       >
         A team of experienced specialists dedicated to providing gentle,
@@ -82,184 +101,164 @@ export default function Doctors() {
       {/* DOCTOR GRID */}
       <div
         style={{
-          maxWidth: 1180,
+          maxWidth: 1150,
           margin: "0 auto",
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
-          gap: 32,
-          padding: "0 24px 80px",
+          gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+          gap: 30,
+          padding: "0 20px 70px",
         }}
       >
-        {doctors.map((doc, i) => (
+        {doctors.map((doc) => (
           <div
-            key={i}
+            key={doc.name}
             className="fade"
             style={{
               background: "#ffffff",
-              borderRadius: 22,
-              overflow: "hidden",
-              boxShadow: "0 8px 28px rgba(0,0,0,0.09)",
-              transition: "transform 0.3s ease, box-shadow 0.3s ease",
-              display: "flex",
-              flexDirection: "column",
+              borderRadius: 20,
+              padding: 20,
+              textAlign: "center",
+              boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+              transition: "0.3s ease",
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = "translateY(-8px)";
-              e.currentTarget.style.boxShadow = "0 18px 40px rgba(0,0,0,0.15)";
+              e.currentTarget.style.boxShadow = "0 15px 35px rgba(0,0,0,0.15)";
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = "translateY(0)";
-              e.currentTarget.style.boxShadow = "0 8px 28px rgba(0,0,0,0.09)";
+              e.currentTarget.style.boxShadow = "0 10px 25px rgba(0,0,0,0.1)";
             }}
           >
             {/* IMAGE */}
-            <div style={{ position: "relative", height: 300, overflow: "hidden", background: "#f2ebe0" }}>
-              <img
-                src={doc.img}
-                alt={doc.name}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  objectPosition: "top center",
-                }}
-                onError={(e) => {
-                  e.target.style.display = "none";
-                  e.target.parentNode.innerHTML =
-                    '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:90px;background:linear-gradient(135deg,#f2ebe0,#e8dcc6)">🦷</div>';
-                }}
-              />
-              {/* Gradient overlay */}
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  height: 60,
-                  background: "linear-gradient(to top, rgba(255,255,255,0.6), transparent)",
-                }}
-              />
+            <img
+              src={doc.img}
+              alt={doc.name}
+              style={{
+                width: "100%",
+                height: 340,
+                objectFit: "cover",
+                objectPosition: "top center",
+                borderRadius: 16,
+                marginBottom: 15,
+              }}
+              onError={(e) => {
+                e.target.style.display = "none";
+                e.target.parentNode.innerHTML =
+                  '<div style="width:100%;height:340px;display:flex;align-items:center;justify-content:center;font-size:120px;background:linear-gradient(135deg,#f2ebe0,#e8dcc6);border-radius:16px;margin-bottom:15px">🦷</div>';
+              }}
+            />
+
+            {/* NAME */}
+            <h3 style={{ fontSize: 22, fontWeight: 700, color: "#6f6048" }}>
+              {doc.name}
+            </h3>
+
+            <p
+              style={{
+                fontSize: 15,
+                marginTop: 6,
+                color: "#5d5446",
+                lineHeight: 1.4,
+                marginBottom: 15,
+              }}
+            >
+              {doc.title}
+            </p>
+
+            {/* SPECIALIST BADGES */}
+            <div
+              style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 8,
+                justifyContent: "center",
+                marginBottom: 18,
+              }}
+            >
+              {doc.badges.map((b) => (
+                <span
+                  key={b}
+                  style={{
+                    padding: "6px 12px",
+                    background: "#f2ebe0",
+                    borderRadius: 20,
+                    fontSize: 12,
+                    color: "#6f6048",
+                    border: "1px solid #e0d4c0",
+                  }}
+                >
+                  {b}
+                </span>
+              ))}
             </div>
 
-            {/* CARD BODY */}
-            <div style={{ padding: "22px 24px", flexGrow: 1, display: "flex", flexDirection: "column" }}>
-              {/* NAME */}
-              <h3 style={{ fontSize: 21, fontWeight: 700, color: "#6f6048", marginBottom: 5 }}>
-                {doc.name}
-              </h3>
-
-              {/* DESIGNATION */}
-              <p
-                style={{
-                  fontSize: 14,
-                  color: "#7a6a54",
-                  lineHeight: 1.5,
-                  marginBottom: 16,
-                  fontStyle: "italic",
-                  borderLeft: "3px solid #c8b89a",
-                  paddingLeft: 10,
-                }}
-              >
-                {doc.title}
-              </p>
-
-              {/* SPECIALIST BADGES */}
-              <div
-                style={{
-                  display: "flex",
-                  flexWrap: "wrap",
-                  gap: 7,
-                  marginBottom: 20,
-                }}
-              >
-                {doc.badges.map((b, bi) => (
-                  <span
-                    key={bi}
-                    style={{
-                      padding: "5px 11px",
-                      background: "#f2ebe0",
-                      borderRadius: 20,
-                      fontSize: 12,
-                      color: "#6f6048",
-                      border: "1px solid #e0d4c0",
-                      fontWeight: 500,
-                    }}
-                  >
-                    {b}
-                  </span>
-                ))}
-              </div>
-
-              {/* STATS */}
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-around",
-                  padding: "14px 0",
-                  marginBottom: 18,
-                  borderTop: "1px solid #f0e8d8",
-                  borderBottom: "1px solid #f0e8d8",
-                }}
-              >
-                <Counter icon={<Award size={18} color="#6f6048" />} label="Years" value={doc.exp} />
-                <Counter icon={<Star size={18} color="#6f6048" />} label="Treatments" value={doc.treatments} />
-                <Counter icon={<Heart size={18} color="#6f6048" />} label="Happy" value={doc.happy} />
-              </div>
-
-              {/* BUTTON */}
-              <button
-                onClick={openModal}
-                style={{
-                  marginTop: "auto",
-                  padding: "12px 0",
-                  background: "#6f6048",
-                  color: "white",
-                  borderRadius: 12,
-                  border: "none",
-                  cursor: "pointer",
-                  fontWeight: 600,
-                  fontSize: 15,
-                  width: "100%",
-                  transition: "background 0.25s ease",
-                }}
-                onMouseEnter={(e) => (e.target.style.background = "#5b4f3d")}
-                onMouseLeave={(e) => (e.target.style.background = "#6f6048")}
-              >
-                Book Appointment
-              </button>
+            {/* STATS */}
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                padding: "12px 10px 18px",
+                marginBottom: 15,
+                borderTop: "1px solid #eee",
+              }}
+            >
+              <Counter icon={<Award size={20} color="#6f6048" />} label="Years" value={doc.exp} />
+              <Counter icon={<Star size={20} color="#6f6048" />} label="Treatments" value={doc.treatments} />
+              <Counter icon={<Heart size={20} color="#6f6048" />} label="Happy" value={doc.happy} />
             </div>
+
+            {/* BUTTON */}
+            <button
+              onClick={openModal}
+              style={{
+                padding: "12px 24px",
+                background: "#6f6048",
+                color: "white",
+                borderRadius: "12px",
+                border: "none",
+                cursor: "pointer",
+                fontWeight: "600",
+                fontSize: "15px",
+                transition: "0.25s ease",
+              }}
+              onMouseEnter={(e) => (e.target.style.background = "#5b4f3d")}
+              onMouseLeave={(e) => (e.target.style.background = "#6f6048")}
+            >
+              Book Appointment
+            </button>
           </div>
         ))}
       </div>
 
-      <style>{`
-        .fade {
-          opacity: 0;
-          transform: translateY(24px);
-          transition: all 0.7s ease;
-        }
-        .fade.visible {
-          opacity: 1;
-          transform: translateY(0);
-        }
-        @media (max-width: 600px) {
-          .fade { transform: translateY(12px); }
-        }
-      `}</style>
+      <style>
+        {`
+          .fade {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all .8s ease;
+          }
+          .fade.visible {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        `}
+      </style>
     </div>
   );
 }
 
 function Counter({ icon, label, value }) {
-  const displayValue = value > 999 ? `${(value / 1000).toFixed(1)}k+` : `${value}+`;
+  const displayValue =
+    value > 1000 ? `${(value / 1000).toFixed(1)}k+` : `${value}+`;
+
   return (
     <div style={{ textAlign: "center" }}>
       {icon}
-      <div style={{ fontWeight: 700, fontSize: 15, color: "#6f6048", marginTop: 2 }}>
+      <div style={{ fontWeight: 700, fontSize: 16, color: "#6f6048" }}>
         {displayValue}
       </div>
-      <div style={{ fontSize: 11, color: "#5d5446" }}>{label}</div>
+      <div style={{ fontSize: 12, color: "#5d5446" }}>{label}</div>
     </div>
   );
 }
