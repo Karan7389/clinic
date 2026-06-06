@@ -1,195 +1,569 @@
-import React, { useEffect } from "react";
-import { useAppointment } from "./AppointmentContext";
-import "./Hero.css";
+import React, { useEffect, useState } from "react";
+import LeadForm from "./LeadForm";
+import Hero from "./Hero";
+import "./Home.css"; 
+import {
+  ShieldCheck,
+  Users,
+  HandHeart,
+  Scan,
+  Wallet,
+  Smile,
+  Building2,
+  Armchair,
+  Microscope,
+  Droplets,
+  Frame,
+  Sparkles
+} from "lucide-react";
+import { Link } from "react-router-dom";
+import API from "./api";
 
-const Hero = () => {
-  const { openModal } = useAppointment();
-
+const Home = () => {
   useEffect(() => {
-    const counters = Array.from(document.querySelectorAll(".count"));
-    if (!counters.length) return;
-
-    // store RAF ids so we can cancel when starting a new animation
-    const rafMap = new Map();
-
-    function animateTo(element, from, to, duration = 800) {
-      // cancel previous
-      const prev = rafMap.get(element);
-      if (prev) cancelAnimationFrame(prev);
-
-      const startTime = performance.now();
-      const isDecimal = String(to).includes(".");
-      function step(now) {
-        const elapsed = now - startTime;
-        const t = Math.min(elapsed / duration, 1); // 0..1
-        // easeOutQuad
-        const progress = 1 - (1 - t) * (1 - t);
-        const current = from + (to - from) * progress;
-
-        if (isDecimal) {
-          element.innerText = current.toFixed(1);
-        } else {
-          element.innerText = Math.floor(current);
-        }
-
-        if (t < 1) {
-          const id = requestAnimationFrame(step);
-          rafMap.set(element, id);
-        } else {
-          // final value
-          element.innerText = isDecimal ? Number(to).toFixed(1) : String(Math.floor(to));
-          rafMap.delete(element);
-        }
-      }
-
-      const id = requestAnimationFrame(step);
-      rafMap.set(element, id);
-    }
-
-    // Start counting immediately on page load
-    let hasStarted = false;
-    function startCountingOnce() {
-      if (hasStarted) return;
-      hasStarted = true;
-      counters.forEach((counter) => {
-        const targetAttr = counter.getAttribute("data-count") || "0";
-        const target = +targetAttr;
-        const duration = 1500;
-        animateTo(counter, 0, target, duration);
-      });
-    }
-
-    // Start immediately after a short delay to ensure DOM is ready
-    const startTimer = setTimeout(() => {
-      startCountingOnce();
-    }, 300);
-
-    // Also observe for scroll (in case user scrolls away and back)
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting) startCountingOnce();
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            // Use stagger delay from data attribute if present
+            const delay = entry.target.dataset.revealDelay || 0;
+            setTimeout(() => {
+              entry.target.classList.add("revealed");
+            }, Number(delay));
+            // Stop observing after reveal to save resources
+            observer.unobserve(entry.target);
+          }
+        });
       },
-      { threshold: 0.1 }
+      { threshold: 0.12, rootMargin: "0px 0px -40px 0px" }
     );
 
-    const element = document.querySelector(".hero-trust-badges");
-    if (element) observer.observe(element);
+    document.querySelectorAll(".reveal-on-scroll").forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
+  }, []);
+  
+  const [leadOpen, setLeadOpen] = useState(false);
+  const [treatments, setTreatments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [expandedDoctor, setExpandedDoctor] = useState({ anand: false, swati: false });
 
-    // Hover effect: quick count up then count down on leave
-    const badgeEls = Array.from(document.querySelectorAll(".hero-trust-badges .badge"));
-
-    badgeEls.forEach((badge) => {
-      const counter = badge.querySelector(".count");
-      if (!counter) return;
-      const targetAttr = counter.getAttribute("data-count") || "0";
-      const target = parseFloat(targetAttr) || 0;
-
-      function handleEnter() {
-        // subtle overshoot to make it feel lively
-        const current = parseFloat(counter.innerText) || 0;
-        const overshoot = target * 1.03; // +3%
-        animateTo(counter, current, overshoot, 400);
-        // settle back to exact target
-        setTimeout(() => animateTo(counter, parseFloat(counter.innerText) || overshoot, target, 400), 420);
+  useEffect(() => {
+    const fetchTreatments = async () => {
+      try {
+        setLoading(true);
+        const response = await API.get("/treatments");
+        
+        // Get first 6 treatments for homepage
+        const rawData = Array.isArray(response.data) ? response.data : [];
+        const treatmentData = rawData.slice(0, 6);
+        setTreatments(treatmentData);
+      } catch (error) {
+        console.error("Error fetching treatments:", error);
+        setTreatments([]);
+      } finally {
+        setLoading(false);
       }
-
-      function handleLeave() {
-        // do not reset to 0; gently settle to target
-        const current = parseFloat(counter.innerText) || 0;
-        animateTo(counter, current, target, 600);
-      }
-
-      badge.addEventListener("mouseenter", handleEnter);
-      badge.addEventListener("mouseleave", handleLeave);
-
-      // cleanup registration reference (we'll remove on unmount)
-      badge._cleanupHandlers = { handleEnter, handleLeave };
-    });
-
-    // cleanup on unmount
-    return () => {
-      clearTimeout(startTimer);
-      observer.disconnect();
-      badgeEls.forEach((badge) => {
-        if (badge._cleanupHandlers) {
-          badge.removeEventListener("mouseenter", badge._cleanupHandlers.handleEnter);
-          badge.removeEventListener("mouseleave", badge._cleanupHandlers.handleLeave);
-          delete badge._cleanupHandlers;
-        }
-      });
-      // cancel any running rafs
-      rafMap.forEach((id) => cancelAnimationFrame(id));
-      rafMap.clear();
     };
+    fetchTreatments();
   }, []);
 
   return (
-    <section
-      className="hero"
-      style={{
-        backgroundImage: 'url("/Images/herobg.webp")',
-        backgroundPosition: "center",
-        backgroundSize: "cover",
-        backgroundRepeat: "no-repeat",
-      }}
-    >
-      {/* Mobile-only blurred background image */}
-      <div
-        className="hero-mobile-bg"
-        style={{ backgroundImage: 'url("/Images/mobileview.jpeg")' }}
-        aria-hidden="true"
-      />
+    <main>
+      <Hero />
 
-      <div className="container hero-inner">
+      {/* =========================================================
+          MEET SENIOR DOCTORS
+      ========================================================== */}
+      <section className="core-doctors-section">
+        <div className="section-inner">
+          <div className="section-header" style={{ textAlign: "center", marginBottom: "36px" }}>
+            <h2>Meet Our Senior Doctors</h2>
+            <p style={{ maxWidth: "760px", margin: "0 auto" }}>
+              Our clinical leadership brings decades of experience and compassionate care.
+            </p>
+          </div>
+          <div className="core-doctors-grid">
+            <article className="core-doctor-card reveal-on-scroll">
+              <div className="core-doctor-photo">
+                <img src="/Images/DrAnandChaudhary.jpg" alt="Dr Anand Chaudhary" loading="lazy" />
+              </div>
+              <div className="core-doctor-body">
+                <h3>Dr. Anand Chaudhary</h3>
+                <p className="doctor-qualification">
+                  Founder, Crown Dental | Dental Surgeon | Implant & Smile Design Specialist
+                </p>
+                <p style={{ marginBottom: "16px", lineHeight: "1.6" }}>
+                  Dr. Anand Chaudhary is the visionary founder of Crown Dental with 12+ years of extensive experience in advanced implantology and comprehensive smile design. His commitment to excellence has transformed countless smiles with cutting-edge dental solutions.
+                  {!expandedDoctor.anand && (
+                    <>
+                      {" "}
+                      <button 
+                        className="doc-btn-read-more-inline" 
+                        onClick={() => setExpandedDoctor(prev => ({ ...prev, anand: !prev.anand }))}
+                      >
+                        Read More →
+                      </button>
+                    </>
+                  )}
+                </p>
+                {expandedDoctor.anand && (
+                  <>
+                    <p style={{ marginBottom: "16px", lineHeight: "1.6" }}>
+                      Specializing in advanced implant dentistry, Dr. Chaudhary combines technical precision with artistic vision to create natural-looking, functional restorations. His expertise spans complex cases and full-mouth rehabilitation, making him a trusted choice for patients seeking comprehensive dental transformation.
+                    </p>
+                    <p style={{ marginBottom: "16px", lineHeight: "1.6" }}>
+                      With a patient-centric philosophy and state-of-the-art technology, he ensures every procedure exceeds expectations in comfort, aesthetics, and longevity. Over 4,500 successful treatments and 4,000+ satisfied patients are testament to his excellence.
+                    </p>
+                    <p style={{ fontWeight: "600", marginBottom: "16px", color: "#6f6048" }}>
+                      Signature Expertise: Advanced Implants | Smile Makeovers | Laser Dentistry | Full Mouth Rehabilitation
+                    </p>
+                    <button 
+                      className="doc-btn-read-more-inline" 
+                      onClick={() => setExpandedDoctor(prev => ({ ...prev, anand: !prev.anand }))}
+                    >
+                      Read Less ↑
+                    </button>
+                  </>
+                )}
+                <div className="doc-btn-container">
+                  <button className="doc-btn" onClick={() => setLeadOpen(true)}>Book a Consultation</button>
+                </div>
+              </div>
+            </article>
 
-        {/* Logo */}
-        <div className="hero-logo reveal-on-scroll">
-          <img
-            src="/Images/logo.png"
-            alt="Crown Dental Logo"
-            className="hero-logo-img"
+            <article className="core-doctor-card reveal-on-scroll">
+              <div className="core-doctor-photo">
+                <img src="/Images/DrSwaatiChaudhary.jpg" alt="Dr Swati Chaudhary" loading="lazy" />
+              </div>
+              <div className="core-doctor-body">
+                <h3>Dr. Swati Chaudhary</h3>
+                <p className="doctor-qualification">
+                  Executive Director, AngelLife Cosmetology & Wellness | Aesthetic Physician & Dental Surgeon
+                </p>
+                <p style={{ marginBottom: "16px", lineHeight: "1.6" }}>
+                  Dr. Swati Chaudhary is an accomplished aesthetic physician and dental surgeon with 10+ years of experience in cosmetic dentistry and advanced aesthetic treatments. As Executive Director of AngelLife Cosmetology & Wellness, she specializes in transforming smiles and rejuvenating facial aesthetics.
+                  {!expandedDoctor.swati && (
+                    <>
+                      {" "}
+                      <button 
+                        className="doc-btn-read-more-inline" 
+                        onClick={() => setExpandedDoctor(prev => ({ ...prev, swati: !prev.swati }))}
+                      >
+                        Read More →
+                      </button>
+                    </>
+                  )}
+                </p>
+                {expandedDoctor.swati && (
+                  <>
+                    <p style={{ marginBottom: "16px", lineHeight: "1.6" }}>
+                      Dr. Swati excels in integrating dental aesthetics with facial rejuvenation, utilizing the latest laser technologies and anti-aging treatments. Her holistic approach ensures not just beautiful teeth, but a harmonious, youthful facial appearance that enhances overall confidence.
+                    </p>
+                    <p style={{ marginBottom: "16px", lineHeight: "1.6" }}>
+                      With a keen eye for aesthetic harmony and deep understanding of facial anatomy, she creates personalized treatment plans that bring out each patient's natural beauty. Her dedication to excellence is reflected in 3,800+ successful treatments and 3,500+ delighted patients.
+                    </p>
+                    <p style={{ fontWeight: "600", marginBottom: "16px", color: "#6f6048" }}>
+                      Signature Expertise: Skin Rejuvenation | Anti-Aging Treatments | Laser Aesthetics | Facial Contouring
+                    </p>
+                    <button 
+                      className="doc-btn-read-more-inline" 
+                      onClick={() => setExpandedDoctor(prev => ({ ...prev, swati: !prev.swati }))}
+                    >
+                      Read Less ↑
+                    </button>
+                  </>
+                )}
+                <div className="doc-btn-container">
+                  <button className="doc-btn" onClick={() => setLeadOpen(true)}>Book a Consultation</button>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================
+          WHY CHOOSE US
+      ========================================================== */}
+      <section className="why-choose-section" id="why-us">
+        <div className="section-inner">
+          <div className="section-header" style={{ textAlign: "center", marginBottom: "48px" }}>
+            <h2>Why Patient Trust Crown Dental</h2>
+            <p style={{ maxWidth: "680px", margin: "0 auto" }}>
+              Your health and comfort are our top priorities.
+            </p>
+          </div>
+
+          <div className="highlights-grid">
+
+  <article className="highlight-card reveal-on-scroll" data-reveal-delay="0">
+    <ShieldCheck size={48} strokeWidth={1.4} className="why-icon" />
+    <h3>Strict Sterilization</h3>
+    <p>International protocols ensure complete safety.</p>
+  </article>
+
+  <article className="highlight-card reveal-on-scroll" data-reveal-delay="80">
+    <Users size={48} strokeWidth={1.4} className="why-icon" />
+    <h3>Expert Team</h3>
+    <p>Highly qualified specialists with years of experience.</p>
+  </article>
+
+  <article className="highlight-card reveal-on-scroll" data-reveal-delay="160">
+    <HandHeart size={48} strokeWidth={1.4} className="why-icon" />
+    <h3>Compassionate Care</h3>
+    <p>Patient comfort and satisfaction are paramount.</p>
+  </article>
+
+  <article className="highlight-card reveal-on-scroll" data-reveal-delay="240">
+    <Scan size={48} strokeWidth={1.4} className="why-icon" />
+    <h3>Advanced Technology</h3>
+    <p>Latest diagnostic and treatment equipment.</p>
+  </article>
+
+  <article className="highlight-card reveal-on-scroll" data-reveal-delay="320">
+    <Wallet size={48} strokeWidth={1.4} className="why-icon" />
+    <h3>Transparent Pricing</h3>
+    <p>Clear costs with no hidden charges.</p>
+  </article>
+
+  <article className="highlight-card reveal-on-scroll" data-reveal-delay="400">
+    <Smile size={48} strokeWidth={1.4} className="why-icon" />
+    <h3>Results You'll Love</h3>
+    <p>Proven track record of beautiful, lasting smiles.</p>
+  </article>
+
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================
+          OUR TREATMENTS
+      ========================================================== */}
+      <section className="treatments-section">
+        <div className="section-inner">
+          <div className="section-header" style={{ textAlign: "center", marginBottom: "48px" }}>
+            <h2>Comprehensive Dental Care</h2>
+            <p style={{ maxWidth: "750px", margin: "0 auto" }}>
+              From preventive care to advanced cosmetic solutions, we offer a complete range of treatments tailored to your needs.
+            </p>
+          </div>
+
+          {loading ? (
+            <div style={{ textAlign: "center", padding: "40px 20px", color: "#6f6048" }}>
+              Loading treatments...
+            </div>
+          ) : treatments.length > 0 ? (
+            <div className="treatments-grid">
+              {treatments.map((treatment, index) => (
+                <Link
+                  key={index}
+                  to={`/treatment/${treatment._id}`}
+                  style={{ textDecoration: "none", color: "inherit" }}
+                >
+                  <article className="treatment-card reveal-on-scroll" data-reveal-delay={index * 80}>
+                    <div className="treatment-icon">
+                      {treatment.icon ? (
+                        <img src={treatment.icon} alt={treatment.name} style={{ width: "100%", height: "100%" }} />
+                      ) : (
+                        <div style={{ fontSize: "48px" }}>🦷</div>
+                      )}
+                    </div>
+                    <h3>{treatment.name}</h3>
+                    <p>{treatment.description}</p>
+                  </article>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div style={{ textAlign: "center", padding: "40px 20px", color: "#6f6048" }}>
+              <p>Treatments coming soon</p>
+            </div>
+          )}
+
+          <div style={{ textAlign: "center", marginTop: "48px" }}>
+            <Link to="/treatments" style={{ textDecoration: "none" }}>
+              <button className="cta-button" style={{
+                padding: "14px 32px",
+                background: "#6f6048",
+                color: "white",
+                border: "none",
+                borderRadius: "8px",
+                fontSize: "16px",
+                fontWeight: "600",
+                cursor: "pointer",
+                transition: "background 0.3s ease",
+              }}
+              onMouseEnter={(e) => e.target.style.background = "#5b4f3d"}
+              onMouseLeave={(e) => e.target.style.background = "#6f6048"}
+              >
+                View All Treatments
+              </button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* =========================================================
+          TESTIMONIALS
+      ========================================================== */}
+      <section className="testimonials-section">
+      <div className="section-inner">
+        <div className="section-header" style={{ textAlign: "center", marginBottom: "48px" }}>
+          <h2>What Our Patients Say</h2>
+          <p style={{ maxWidth: "680px", margin: "0 auto" }}>
+            Real stories from real patients who have experienced our care.
+          </p>
+        </div>
+
+        <div className="testimonials-grid">
+        <article className="testimonial-card">
+          <div className="author">
+            <div className="author-avatar" style={{ background: "#e74c3c" }}>A</div>
+            <div>
+              <p className="author-name">Aman Singh</p>
+              <div className="author-rating">⭐⭐⭐⭐⭐</div>
+            </div>
+          </div>
+          <p className="testimonial-text">
+            Best dental clinic in Prayagraj! Dr. Anand's expertise with implants transformed my smile completely. Highly professional team with state-of-the-art facilities.
+          </p>
+        </article>
+
+        <article className="testimonial-card">
+          <div className="author">
+            <div className="author-avatar" style={{ background: "#3498db" }}>P</div>
+            <div>
+              <p className="author-name">Priya Mishra</p>
+              <div className="author-rating">⭐⭐⭐⭐⭐</div>
+            </div>
+          </div>
+          <p className="testimonial-text">
+            Dr. Swati is amazing! The cosmetic dentistry work exceeded my expectations. The staff is friendly and the clinic is super clean. Definitely recommend!
+          </p>
+        </article>
+
+        <article className="testimonial-card">
+          <div className="author">
+            <div className="author-avatar" style={{ background: "#2ecc71" }}>R</div>
+            <div>
+              <p className="author-name">Rajesh Kumar</p>
+              <div className="author-rating">⭐⭐⭐⭐⭐</div>
+            </div>
+          </div>
+          <p className="testimonial-text">
+            Excellent experience! Dr. Anand's dental implants solution was painless and the results are fantastic. The entire process was transparent and professional.
+          </p>
+        </article>
+
+        <article className="testimonial-card">
+          <div className="author">
+            <div className="author-avatar" style={{ background: "#f39c12" }}>N</div>
+            <div>
+              <p className="author-name">Neha Patel</p>
+              <div className="author-rating">⭐⭐⭐⭐⭐</div>
+            </div>
+          </div>
+          <p className="testimonial-text">
+            Got a complete smile makeover with Dr. Swati. The aesthetic results combined with dental health improvements are remarkable. Very satisfied!
+          </p>
+        </article>
+
+        <article className="testimonial-card">
+          <div className="author">
+            <div className="author-avatar" style={{ background: "#9b59b6" }}>V</div>
+            <div>
+              <p className="author-name">Vikram Sharma</p>
+              <div className="author-rating">⭐⭐⭐⭐⭐</div>
+            </div>
+          </div>
+          <p className="testimonial-text">
+            Best dental care I've experienced. The doctors are highly skilled and the clinic has latest technology. Would definitely recommend to everyone!
+          </p>
+        </article>
+
+        <article className="testimonial-card">
+          <div className="author">
+            <div className="author-avatar" style={{ background: "#1abc9c" }}>S</div>
+            <div>
+              <p className="author-name">Shreya Verma</p>
+              <div className="author-rating">⭐⭐⭐⭐⭐</div>
+            </div>
+          </div>
+          <p className="testimonial-text">
+            Had a great experience at Crown Dental. Dr. Anand's expertise and caring nature made the entire procedure comfortable. Thank you for the beautiful smile!
+          </p>
+        </article>
+        </div>
+      </div>
+</section>
+
+      {/* =========================================================
+          MODERN TECHNOLOGY
+      ========================================================== */}
+       <section className="facility-section">
+  <div className="section-inner">
+    <div className="section-header" style={{ textAlign: "center", marginBottom: "48px" }}>
+      <h2>Our Modern Facility</h2>
+      <p style={{ maxWidth: "700px", margin: "0 auto" }}>
+        Take a virtual tour of our state-of-the-art clinic designed for your comfort and safety.
+      </p>
+    </div>
+
+    <div className="facility-grid">
+      <a href="/gallery" className="facility-card reveal-on-scroll" data-reveal-delay="0" style={{ textDecoration: "none", color: "inherit", cursor: "pointer" }}>
+        <Building2 size={52} strokeWidth={1.5} className="facility-icon" />
+        <p className="facility-title">Reception Area</p>
+      </a>
+
+      <a href="/gallery" className="facility-card reveal-on-scroll" data-reveal-delay="70" style={{ textDecoration: "none", color: "inherit", cursor: "pointer" }}>
+        <Armchair size={52} strokeWidth={1.5} className="facility-icon" />
+        <p className="facility-title">Treatment Rooms</p>
+      </a>
+
+      <a href="/gallery" className="facility-card reveal-on-scroll" data-reveal-delay="140" style={{ textDecoration: "none", color: "inherit", cursor: "pointer" }}>
+        <Microscope size={52} strokeWidth={1.5} className="facility-icon" />
+        <p className="facility-title">Modern Equipment</p>
+      </a>
+
+      <a href="/gallery" className="facility-card reveal-on-scroll" data-reveal-delay="210" style={{ textDecoration: "none", color: "inherit", cursor: "pointer" }}>
+        <Droplets size={52} strokeWidth={1.5} className="facility-icon" />
+        <p className="facility-title">Sterilization Unit</p>
+      </a>
+
+      <a href="/gallery" className="facility-card reveal-on-scroll" data-reveal-delay="280" style={{ textDecoration: "none", color: "inherit", cursor: "pointer" }}>
+        <Frame size={52} strokeWidth={1.5} className="facility-icon" />
+        <p className="facility-title">Waiting Lounge</p>
+      </a>
+
+      <a href="/gallery" className="facility-card reveal-on-scroll" data-reveal-delay="350" style={{ textDecoration: "none", color: "inherit", cursor: "pointer" }}>
+        <Sparkles size={52} strokeWidth={1.5} className="facility-icon" />
+        <p className="facility-title">Cosmetic Suite</p>
+      </a>
+    </div>
+  </div>
+</section>
+      {/* =========================================================
+          TECHNOLOGY
+      ========================================================== */}
+    <section className="technology-section">
+    <div className="tech-header">
+      <h2>Advanced Technology We Use</h2>
+      <p>
+        State-of-the-art equipment ensuring precision, safety, and comfort in every procedure.
+      </p>
+    </div>
+
+    <div className="technology-grid">
+      
+      <article className="tech-card reveal-on-scroll" data-reveal-delay="0">
+        <div className="tech-image-wrapper">
+          <img 
+            src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?w=400&h=300&fit=crop&q=80" 
+            alt="Digital X-Rays" 
+            className="tech-image"
+            loading="lazy"
           />
         </div>
+        <h3>Digital X-Rays</h3>
+        <p>90% less radiation exposure with instant high-resolution imaging for accurate diagnosis.</p>
+      </article>
 
-        {/* Title */}
-        <h1 className="hero-title reveal-on-scroll">
-          Pain-Free Dental Treatment You Can Trust in Prayagraj 
-
-        </h1>
-
-        {/* Subtitle */}
-        <p className="hero-subtitle reveal-on-scroll">
-         Pain-free, advanced dental treatments by expert specialists — delivered with modern technology and complete patient comfort.
-        </p>
-
-        {/* Buttons */}
-        <div className="hero-cta-group reveal-on-scroll">
-          <button className="btn-primary" onClick={openModal}>
-            Book Appointment
-          </button>
-
-          <a href="tel:+15555550199" className="btn-secondary">Call Now</a>
+      <article className="tech-card reveal-on-scroll" data-reveal-delay="100">
+        <div className="tech-image-wrapper">
+          <img 
+            src="https://images.unsplash.com/photo-1581594549595-35f6edc7b762?w=400&h=300&fit=crop&q=80" 
+            alt="Laser Dentistry" 
+            className="tech-image"
+            loading="lazy"
+          />
         </div>
+        <h3>Laser Dentistry</h3>
+        <p>Minimally invasive procedures with faster healing and reduced discomfort.</p>
+      </article>
 
-        {/* Trust Badges */}
-        <div className="hero-trust-badges reveal-on-scroll">
-          <span className="badge">
-            ⭐ <span className="count" data-count="4.9">0</span>/5 Rating
-          </span>
-
-          <span className="badge">
-            ✓ <span className="count" data-count="10000">0</span>+ Happy Patients
-          </span>
-
-          <span className="badge">
-            ✓ <span className="count" data-count="7">0</span>+ Years Excellence
-          </span>
+      <article className="tech-card reveal-on-scroll" data-reveal-delay="200">
+        <div className="tech-image-wrapper">
+          <img 
+            src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?w=400&h=300&fit=crop&q=80" 
+            alt="Intraoral Scanner" 
+            className="tech-image"
+            loading="lazy"
+          />
         </div>
+        <h3>Intraoral Scanner</h3>
+        <p>3D digital impressions eliminating messy traditional molds for precise results.</p>
+      </article>
 
-      </div>
-    </section>
+      <article className="tech-card reveal-on-scroll" data-reveal-delay="300">
+        <div className="tech-image-wrapper">
+          <img 
+            src="https://images.unsplash.com/photo-1583911860205-72f8ac8ddcbe?w=400&h=300&fit=crop&q=80" 
+            alt="Autoclave Sterilization" 
+            className="tech-image"
+            loading="lazy"
+          />
+        </div>
+        <h3>Autoclave Sterilization</h3>
+        <p>Hospital-grade sterilization ensuring complete elimination of pathogens.</p>
+      </article>
+
+    </div>
+</section>
+
+{leadOpen && (
+  <div
+    style={{
+      position: "fixed",
+      top: 0,
+      left: 0,
+      width: "100vw",
+      height: "100vh",
+      background: "rgba(0,0,0,0.5)",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      zIndex: 9999,
+    }}
+  >
+    <div
+      style={{
+        background: "white",
+        padding: 30,
+        borderRadius: 14,
+        width: "90%",
+        maxWidth: 420,
+        position: "relative",
+      }}
+    >
+      <button
+        onClick={() => setLeadOpen(false)}
+        style={{
+          position: "absolute",
+          top: 10,
+          right: 10,
+          fontSize: 20,
+          background: "none",
+          border: "none",
+          cursor: "pointer",
+        }}
+      >
+        ×
+      </button>
+
+      <h2 style={{ marginBottom: 16 }}>Book a Consultation</h2>
+
+      <LeadForm
+        source="Home Page - Consultation"
+        onSuccess={() => setLeadOpen(false)}
+      />
+    </div>
+  </div>
+)}
+
+    </main>
   );
-};
+}
 
-export default Hero;
+
+export default Home;
 
