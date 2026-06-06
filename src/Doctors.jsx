@@ -7,24 +7,6 @@ export default function Doctors() {
 
   const doctors = [
     {
-      name: "Dr. Anand Chaudhary",
-      title: "Founder, Crown Dental | Dental Surgeon | Implant & Smile Design Specialist",
-      img: "/Images/Maledocter.webp",
-      badges: ["Advanced Implants", "Smile Makeovers", "Laser Dentistry", "Full Mouth Rehabilitation"],
-      exp: 12,
-      treatments: 4500,
-      happy: 4000,
-    },
-    {
-      name: "Dr. Swati Chaudhary",
-      title: "Executive Director, AngelLife Cosmetology & Wellness | Aesthetic Physician & Dental Surgeon",
-      img: "/Images/Femaledocter.webp",
-      badges: ["Skin Rejuvenation", "Anti-Aging Treatments", "Laser Aesthetics", "Facial Contouring"],
-      exp: 10,
-      treatments: 3800,
-      happy: 3500,
-    },
-    {
       name: "Dr. Astitva Agarwal",
       title: "BDS, MDS | Orthodontist",
       img: "/Images/DrAstitvaAgarwal.webp",
@@ -281,3 +263,4 @@ function Counter({ icon, label, value }) {
     </div>
   );
 }
+
